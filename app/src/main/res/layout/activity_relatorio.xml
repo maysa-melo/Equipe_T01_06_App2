@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_alignWithParentIfMissing="false"
     tools:context=".Relatorio">
 
     <TextView
@@ -32,7 +33,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button"
+        android:id="@+id/btnGerarRelatorio"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -43,7 +44,41 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="176dp" />
+        tools:layout_editor_absoluteY="317dp" />
+
+    <Spinner
+        android:id="@+id/spnCategoria"
+        android:layout_width="409dp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="271dp" />
+
+    <EditText
+        android:id="@+id/dtaInicio"
+        android:layout_width="328dp"
+        android:layout_height="47dp"
+        android:focusable="false"
+        android:hint="Data Início"
+        android:inputType="none"
+        tools:layout_editor_absoluteX="36dp"
+        tools:layout_editor_absoluteY="132dp" />
+
+    <EditText
+        android:id="@+id/dtaFim"
+        android:layout_width="328dp"
+        android:layout_height="47dp"
+        android:focusable="false"
+        android:hint="Data Final"
+        android:inputType="none"
+        tools:layout_editor_absoluteX="36dp"
+        tools:layout_editor_absoluteY="195dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="409dp"
+        android:layout_height="340dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="389dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
