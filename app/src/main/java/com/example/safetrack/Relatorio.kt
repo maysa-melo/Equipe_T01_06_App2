@@ -1,12 +1,24 @@
 package com.example.safetrack
 
 import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class Relatorio : AppCompatActivity() {
 
@@ -14,7 +26,7 @@ class Relatorio : AppCompatActivity() {
     private lateinit var dtaFinal: EditText
     private lateinit var spnCategoria: Spinner
     private lateinit var btnGerarRelatorio: Button
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var ViewRelatorio: RecyclerView
     private lateinit var firestore: FirebaseFirestore
 
     private val db = FirebaseFirestore.getInstance()
@@ -43,20 +55,20 @@ class Relatorio : AppCompatActivity() {
         dtaFinal = findViewById(R.id.dtaFim)
         spnCategoria = findViewById(R.id.spnCategoria)
         btnGerarRelatorio = findViewById(R.id.btnGerarRelatorio)
-        recyclerView = findViewById(R.id.recyclerViewRelatorio)
+        ViewRelatorio = findViewById(R.id.ViewRelatorio)
 
         // Configurar RecyclerView
 
         adapter = IncidenteAdapter(listaIncidentes)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        ViewRelatorio.layoutManager = LinearLayoutManager(this)
+        ViewRelatorio.adapter = adapter
 
         // Datas
         dtaInicio.setOnClickListener { mostrarDatePicker(true) }
         dtaFinal.setOnClickListener { mostrarDatePicker(false) }
 
         // Categorias do Spinner
-        val categorias = listOf("Elétrico", "Químico", "Altura", "Mecânico")
+        val categorias = listOf("Elétrico", "Químico", "Infraestrutura")
         spnCategoria.adapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categorias)
 
