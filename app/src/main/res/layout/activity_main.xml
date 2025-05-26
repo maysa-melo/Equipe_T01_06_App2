@@ -37,30 +37,32 @@
     <!-- FILTRO DE CATEGORIA (CANTO SUPERIOR DIREITO DO MAPA) -->
     <Spinner
         android:id="@+id/spinnerFiltro"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="28dp"
+        android:layout_marginStart="28dp"
         android:popupBackground="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/tvTitulo"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:background="@null"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnIrRelatorios"
         android:layout_width="147dp"
-        android:layout_height="36dp"
+        android:layout_height="28dp"
         android:layout_marginTop="4dp"
+        android:layout_marginStart="28dp"
         android:background="@drawable/btn_laranja"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:text="Ir para relatórios"
         android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="@id/spinnerFiltro"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@id/spinnerFiltro"
-        app:layout_constraintTop_toBottomOf="@id/spinnerFiltro" />
-
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@id/spinnerFiltro"
+        app:layout_constraintStart_toStartOf="parent"
+        />
 
     <!-- LEGENDA (embaixo à esquerda) -->
     <LinearLayout
