@@ -7,6 +7,24 @@
     android:layout_height="match_parent"
     tools:context=".Relatorio">
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnGerarRelatorio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/btn_fundo_verde"
+        android:text="Gerar Relatório"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/ViewRelatorio"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spnCategoria"
+        app:layout_constraintVertical_bias="0.5" />
+
     <TextView
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
@@ -31,20 +49,54 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button"
-        android:layout_width="0dp"
+    <Spinner
+        android:id="@+id/spnCategoria"
+        android:layout_width="409dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/btn_fundo_verde"
-        android:text="Gerar Relatório"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btnGerarRelatorio"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+        app:layout_constraintTop_toBottomOf="@+id/dtaFim"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <EditText
+        android:id="@+id/dtaInicio"
+        android:layout_width="328dp"
+        android:layout_height="48dp"
+        android:focusable="false"
+        android:hint="Data Início"
+        android:inputType="none"
+        app:layout_constraintBottom_toTopOf="@+id/dtaFim"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <EditText
+        android:id="@+id/dtaFim"
+        android:layout_width="328dp"
+        android:layout_height="48dp"
+        android:focusable="false"
+        android:hint="Data Final"
+        android:inputType="none"
+        app:layout_constraintBottom_toTopOf="@+id/spnCategoria"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dtaInicio"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ViewRelatorio"
+        android:layout_width="409dp"
+        android:layout_height="340dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnGerarRelatorio"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
