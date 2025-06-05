@@ -51,8 +51,9 @@
 
     <Spinner
         android:id="@+id/spnCategoria"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
+        android:layout_width="367dp"
+        android:layout_height="48dp"
+        android:minHeight="48dp"
         app:layout_constraintBottom_toTopOf="@+id/btnGerarRelatorio"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -90,8 +91,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ViewRelatorio"
-        android:layout_width="409dp"
-        android:layout_height="340dp"
+        android:layout_width="394dp"
+        android:layout_height="335dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

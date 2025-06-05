@@ -5,5 +5,7 @@ data class Incidente(
     val categoria: String,
     val descricao: String,
     val localizacao: String,
-    val data: Timestamp
+    val data: Timestamp?,
+    var dataTexto: String = ""
 )
+

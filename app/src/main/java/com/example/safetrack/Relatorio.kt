@@ -16,8 +16,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import android.app.DatePickerDialog
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class Relatorio : AppCompatActivity() {
@@ -29,7 +31,6 @@ class Relatorio : AppCompatActivity() {
     private lateinit var ViewRelatorio: RecyclerView
     private lateinit var firestore: FirebaseFirestore
 
-    private val db = FirebaseFirestore.getInstance()
     private val listaIncidentes = mutableListOf<Incidente>()
     private lateinit var adapter: IncidenteAdapter
 
@@ -37,10 +38,10 @@ class Relatorio : AppCompatActivity() {
     private var dataFim: Timestamp? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_relatorio)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -51,6 +52,7 @@ class Relatorio : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         firestore = FirebaseFirestore.getInstance()
 
+        // Inicializações
         dtaInicio = findViewById(R.id.dtaInicio)
         dtaFinal = findViewById(R.id.dtaFim)
         spnCategoria = findViewById(R.id.spnCategoria)
@@ -58,7 +60,6 @@ class Relatorio : AppCompatActivity() {
         ViewRelatorio = findViewById(R.id.ViewRelatorio)
 
         // Configurar RecyclerView
-
         adapter = IncidenteAdapter(listaIncidentes)
         ViewRelatorio.layoutManager = LinearLayoutManager(this)
         ViewRelatorio.adapter = adapter
@@ -68,7 +69,7 @@ class Relatorio : AppCompatActivity() {
         dtaFinal.setOnClickListener { mostrarDatePicker(false) }
 
         // Categorias do Spinner
-        val categorias = listOf("Elétrico", "Químico", "Infraestrutura")
+        val categorias = listOf("Todos", "Elétrico", "Químico", "Infraestrutura")
         spnCategoria.adapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categorias)
 
@@ -85,9 +86,8 @@ class Relatorio : AppCompatActivity() {
             if (isInicio) {
                 dtaInicio.setText(formatado)
                 dataInicio = Timestamp(cal.time)
-            }else {
+            } else {
                 dtaFinal.setText(formatado)
-                // Adiciona 23:59:59 para pegar o fim do dia
                 cal.set(Calendar.HOUR_OF_DAY, 23)
                 cal.set(Calendar.MINUTE, 59)
                 cal.set(Calendar.SECOND, 59)
@@ -96,12 +96,36 @@ class Relatorio : AppCompatActivity() {
         }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
     }
 
+    private fun formatarData(timestampStr: String?): Date? {
+        return try {
+            val data = timestampStr?.split(" ")?.firstOrNull()
+            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(data ?: "")
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun buscarIncidentes() {
         val categoriaSelecionada = spnCategoria.selectedItem.toString()
+
+        listaIncidentes.clear()
+        adapter.notifyDataSetChanged()
 
         firestore.collection("usuarios")
             .get()
             .addOnSuccessListener { usuarios ->
+
+                if (usuarios.isEmpty) {
+                    Toast.makeText(this, "Nenhum dado encontrado", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                var usuariosProcessados = 0
+
+                // Para controlar quantos incidentes processamos no total
+                var totalIncidentesParaProcessar = 0
+                var incidentesProcessados = 0
+
                 for (usuario in usuarios) {
                     val idUsuario = usuario.id
 
@@ -110,32 +134,95 @@ class Relatorio : AppCompatActivity() {
                         .collection("incidentes")
                         .get()
                         .addOnSuccessListener { incidentes ->
-                            listaIncidentes.clear()
+
+                            if (incidentes.isEmpty) {
+                                // Se não tem incidentes, já conta esse usuário como processado
+                                usuariosProcessados++
+                                if (usuariosProcessados == usuarios.size()) {
+                                    adapter.notifyDataSetChanged()
+                                }
+                                return@addOnSuccessListener
+                            }
+
+                            totalIncidentesParaProcessar += incidentes.size()
+
                             for (doc in incidentes) {
                                 val categoria = doc.getString("categoria") ?: ""
                                 val descricao = doc.getString("descricao") ?: ""
-                                val localizacao = doc.getString("localizacao") ?: ""
-                                val data = doc.getTimestamp("data") ?: continue
+                                val geoPoint = doc.getGeoPoint("localizacao")
+                                val localizacao =
+                                    geoPoint?.let { "${it.latitude}, ${it.longitude}" }
+                                        ?: "Localização indisponível"
 
-                                // Filtra pela data
-                                val dentroDoPeriodo = dataInicio?.let { data >= it } ?: true &&
-                                        dataFim?.let { data <= it } ?: true
+                                firestore.collection("usuarios")
+                                    .document(idUsuario)
+                                    .collection("localizacoes")
+                                    .limit(1)
+                                    .get()
+                                    .addOnSuccessListener { localizacoes ->
 
-                                // Filtra pela categoria
-                                val categoriaCorreta = categoriaSelecionada == "Todos" || categoria == categoriaSelecionada
+                                        val timestampString =
+                                            localizacoes.firstOrNull()?.getString("timestamp")
 
-                                if (dentroDoPeriodo && categoriaCorreta) {
-                                    listaIncidentes.add(Incidente(categoria, descricao, localizacao, data))
-                                }
+                                        val dataConvertida = formatarData(timestampString)
+                                        val tsConvertida = dataConvertida?.let { Timestamp(it) }
+
+                                        val dentroDoPeriodo =
+                                            if (dataInicio != null || dataFim != null) {
+                                                (dataInicio == null || (tsConvertida != null && tsConvertida.compareTo(dataInicio) >= 0)) &&
+                                                        (dataFim == null || (tsConvertida != null && tsConvertida.compareTo(dataFim) <= 0))
+                                            } else true
+
+                                        val categoriaCorreta =
+                                            categoriaSelecionada == "Todos" || categoria == categoriaSelecionada
+
+                                        if (dentroDoPeriodo && categoriaCorreta) {
+                                            val incidente =
+                                                Incidente(categoria, descricao, localizacao, null)
+                                            incidente.dataTexto = timestampString?.split(" ")?.firstOrNull() ?: "Data indisponível"
+                                            listaIncidentes.add(incidente)
+                                        }
+
+                                        incidentesProcessados++
+
+                                        // Só atualiza adapter quando todos incidentes de todos usuários foram processados
+                                        if (usuariosProcessados == usuarios.size() && incidentesProcessados == totalIncidentesParaProcessar) {
+                                            adapter.notifyDataSetChanged()
+                                        }
+
+                                    }
+                                    .addOnFailureListener {
+
+                                        incidentesProcessados++
+
+                                        if (usuariosProcessados == usuarios.size() && incidentesProcessados == totalIncidentesParaProcessar) {
+                                            adapter.notifyDataSetChanged()
+                                        }
+                                    }
                             }
-                            adapter.notifyDataSetChanged()
+
+                            // Aqui marca que usuário já teve seus incidentes buscados
+                            usuariosProcessados++
+
+                            // Se não houver incidentes, já atualiza o adapter
+                            if (incidentes.isEmpty && usuariosProcessados == usuarios.size()) {
+                                adapter.notifyDataSetChanged()
+                            }
+
                         }
                         .addOnFailureListener {
                             Toast.makeText(this, "Erro ao buscar dados", Toast.LENGTH_SHORT).show()
+
+                            usuariosProcessados++
+
+                            if (usuariosProcessados == usuarios.size()) {
+                                adapter.notifyDataSetChanged()
+                            }
                         }
                 }
-
-
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro ao buscar usuários", Toast.LENGTH_SHORT).show()
             }
     }
 }

@@ -28,6 +28,6 @@ class IncidenteAdapter(private val lista: List<Incidente>) : RecyclerView.Adapte
         val item = lista[position]
         holder.categoria.text = item.categoria
         holder.descricao.text = item.descricao
-        holder.data.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(item.data.toDate())
+        holder.data.text = item.dataTexto ?: "Data indisponível"
     }
 }
